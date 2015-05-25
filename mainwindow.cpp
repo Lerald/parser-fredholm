@@ -4,6 +4,8 @@
 #include "stdio.h"
 #include "iostream"
 
+extern QHash<QString, fdu> *funcs;
+
 extern int calculate(char * str,  coreFunc * result);
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -39,7 +41,9 @@ void MainWindow::compileFunc()
         input[i] = tmp.at(i).toLatin1();
     }
     calculate(input, function);
-       std::cerr << function->getResult();
+    std::cerr << function->getResult();
+
+    delete[] input;
 }
 
 void MainWindow::buildResultTable()
@@ -47,7 +51,7 @@ void MainWindow::buildResultTable()
     if(!function)
         return;
 
-    int steps = ui->Steps_LE->text().toInt();
+    double steps = ui->Steps_LE->text().toDouble();
     ui->tableWidget->setColumnCount(steps);
     ui->tableWidget->setRowCount(steps);
     double xMax = ui->Xmax_LE->text().toDouble();
@@ -57,10 +61,10 @@ void MainWindow::buildResultTable()
 
     double xShift = (xMax - xMin)/steps;
     double yShift = (yMax - yMin)/steps;
-    for(int x = 0; x < steps; x++)
+    for(double x = 0; x < steps; x++)
     {
         function->variables.insert("x", xMin + xShift*x);
-        for(int y = 0; y < steps; y++)
+        for(double y = 0; y < steps; y++)
         {
             function->variables.insert("y", yMin + yShift*y);
             QTableWidgetItem *item = new QTableWidgetItem(QString("%1").arg(function->getResult()));

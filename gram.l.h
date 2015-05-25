@@ -49,11 +49,11 @@ cos|sin|tan|acos|asin|atan|cosh|sinh|tanh|acosh|asinh|atanh|exp|log|log10|exp2|e
 fmax|fmin|modf		{
                 func_name = new QString(yytext);
                 return FUNC_DD;
-			}
+            }
 frexp|ldexp		{
                 func_name = new QString(yytext);
                 return FUNC_DI;
-			}
+            }
 
 %%
 int yywrap(void) {

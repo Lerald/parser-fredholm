@@ -3,6 +3,13 @@
 
 #include <QMap>
 #include <QString>
+#include "math.h"
+#include <functional>
+#include <QHash>
+
+typedef  std::pointer_to_unary_function<double,double>fdu;
+
+void initStdFunction();
 
 class Base;
 

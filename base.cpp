@@ -1,6 +1,8 @@
 #include "base.h"
-#include "math.h"
 #include "stdio.h"
+#include <QMessageBox>
+
+extern QHash<QString, fdu> *funcs;
 
 Base::Base(Base *firstOperand, Base *secondOperand)
 {
@@ -102,7 +104,11 @@ Variable::Variable(QString name)
 
 double Variable::calculation()
 {
-    double t = head->getVariable(varName);
+    double t = 0;
+    if(head)
+        t = head->getVariable(varName);
+    else
+        std::cerr << "Error";
     std::cerr << t;
     return t;
 }
@@ -120,3 +126,98 @@ double Number::calculation()
 {
     return number;
 }
+//-------------------------
+
+Func_OneParam::Func_OneParam(QString *name, Base *firstOperand) :
+    Base(firstOperand)
+{
+    funcName = "";
+    funcName = *name;
+    supported = funcs && funcs->contains(funcName);
+
+    if(supported)
+    {
+        std_func = (funcs->value(funcName));
+    }
+}
+
+double Func_OneParam::error(double param)
+{
+    fprintf(stderr, "Error func for param %f ", param);
+    QMessageBox msgBox;
+    msgBox.setText("Occurs error with call math func" + funcName);
+    msgBox.exec();
+    return 0;
+}
+
+double Func_OneParam::calculation()
+{
+    if(supported)
+        return std_func(left->calculation());
+    else
+        return error(left->calculation());
+}
+//-------------------------
+
+Func_TwoParam::Func_TwoParam(QString *name, Base *firstOperand, Base *secondOperand) :
+    Base(firstOperand, secondOperand)
+{
+    funcName = "";
+    funcName = *name;
+    funcCase = 0;
+
+    if(funcName == "fmax")
+    {
+        std_func = std::ptr_fun(fmax);
+        funcCase = 1;
+    }
+    else if(funcName == "fmin")
+    {
+        std_func = std::ptr_fun(fmin);
+        funcCase = 1;
+    }
+    else if(funcName == "modf")
+    {
+        funcCase = 2;
+    }
+    else if(funcName == "frexp")
+    {
+        funcCase = 3;
+    }
+    else if(funcName == "ldexp")
+    {
+        funcCase = 4;
+    }
+}
+
+double Func_TwoParam::error(double first, double second)
+{
+    fprintf(stderr, "Error func for param %f and  %f", first, second);
+    QMessageBox msgBox;
+    msgBox.setText("Occurs error with call math func" + funcName);
+    msgBox.exec();
+    return 0;
+}
+
+double Func_TwoParam::calculation()
+{
+    double tmp = rigth->calculation();
+    switch(funcCase)
+    {
+    case 1:
+        return std_func(left->calculation(), tmp);
+    case 2:
+        return modf(left->calculation(), &tmp);
+    case 3:
+    {
+        int integer = (int)tmp;
+        return frexp(left->calculation(), &integer);
+    }
+    case 4:
+        return ldexp(left->calculation(), (int)tmp);
+    default:
+        return error(left->calculation(), rigth->calculation());
+    }
+
+}
+

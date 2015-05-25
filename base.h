@@ -4,6 +4,7 @@
 #include "corefunc.h"
 #include "iostream"
 
+//--------------------
 class Base
 {
 public:
@@ -74,6 +75,36 @@ public:
 
 protected:
     double number;
+};
+
+class Func_OneParam : public Base
+{
+public:
+    Func_OneParam(QString *name, Base *firstOperand = 0);
+    double calculation();
+
+protected:
+    QString funcName;
+
+private:
+    double error(double param);
+    std::pointer_to_unary_function<double,double> std_func;
+    bool supported;
+};
+
+class Func_TwoParam : public Base
+{
+public:
+    Func_TwoParam(QString *name, Base *firstOperand = 0, Base *secondOperand = 0);
+    double calculation();
+
+protected:
+    QString funcName;
+
+private:
+    double error(double first, double second);
+    std::pointer_to_binary_function<double,double,double> std_func;
+    int funcCase;
 };
 
 #endif // BASE_H
